@@ -1,6 +1,5 @@
-# URL Shortener
+# URL Shortener  [![CI](https://github.com/aburkut/urlshortener/actions/workflows/ci.yml/badge.svg)](https://github.com/aburkut/urlshortener/actions/workflows/ci.yml)
 
-[![CI](https://github.com/aburkut/urlshortener/actions/workflows/ci.yml/badge.svg)](https://github.com/aburkut/urlshortener/actions/workflows/ci.yml)
 
 A production-ready URL shortening service built with Rust, Rocket, and PostgreSQL.
 
