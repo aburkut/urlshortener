@@ -1,0 +1,11 @@
+[default]
+[default.databases.postgres]
+url = "postgres://postgres:postgres@localhost:5432/urlshortener"
+
+[debug]
+[debug.databases.postgres]
+url = "postgres://postgres:postgres@localhost:5433/urlshortener_test"
+
+[release]
+[release.databases.postgres]
+url = "postgres://postgres:postgres@localhost:5432/urlshortener"
