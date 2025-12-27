@@ -4,16 +4,16 @@ A production-ready URL shortening service built with Rust, Rocket, and PostgreSQ
 
 ## Features
 
-✅ **URL Validation** - Validates URLs before creating short links
-✅ **Collision Detection** - Handles ID collisions with configurable retry limit
-✅ **Deduplication** - Optionally reuses existing short URLs for the same long URL
-✅ **Click Tracking** - Tracks the number of clicks for each short URL
-✅ **TTL Support** - Set expiration dates for short URLs
-✅ **Configurable** - All settings configurable via environment variables
-✅ **Structured Logging** - Using `tracing` for comprehensive logging
-✅ **Structured Errors** - Proper error handling with meaningful responses
-✅ **CORS Support** - Configurable CORS settings
-✅ **Database Migrations** - Managed with Diesel
+- **URL Validation** - Validates URLs before creating short links
+- **Collision Detection** - Handles ID collisions with configurable retry limit
+- **Deduplication** - Optionally reuses existing short URLs for the same long URL
+- **Click Tracking** - Tracks the number of clicks for each short URL
+- **TTL Support** - Set expiration dates for short URLs
+- **Configurable** - All settings configurable via environment variables
+- **Structured Logging** - Using `tracing` for comprehensive logging
+- **Structured Errors** - Proper error handling with meaningful responses
+- **CORS Support** - Configurable CORS settings
+- **Database Migrations** - Managed with Diesel
 
 ## Prerequisites
 
