@@ -2,10 +2,10 @@ extern crate urlshortener;
 
 use rocket::{Error, Ignite, Rocket};
 use rocket_db_pools::Database;
-use urlshortener::routes::DbConn;
-use urlshortener::config::AppConfig;
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use std::env;
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use urlshortener::config::AppConfig;
+use urlshortener::routes::DbConn;
 
 pub struct Server {
     port: u16,
@@ -23,15 +23,18 @@ impl Server {
             .merge(("cli_colors", false)); // Disable colored output
 
         rocket::custom(figment)
-            .mount("/",
-                   rocket::routes![
-                       urlshortener::routes::options,
-                       urlshortener::routes::shortener::create_short_url,
-                       urlshortener::routes::shortener::get_full_url,
-                   ],
+            .mount(
+                "/",
+                rocket::routes![
+                    urlshortener::routes::options,
+                    urlshortener::routes::shortener::create_short_url,
+                    urlshortener::routes::shortener::get_full_url,
+                ],
             )
             .manage(self.config.clone())
-            .attach(urlshortener::routes::Cors::new(self.config.cors_allowed_origins))
+            .attach(urlshortener::routes::Cors::new(
+                self.config.cors_allowed_origins,
+            ))
             .attach(DbConn::init())
             .launch()
             .await
@@ -43,13 +46,12 @@ async fn main() {
     // Initialize tracing/logging
     tracing_subscriber::registry()
         .with(
-            tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "info".into()),
+            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()),
         )
         .with(
             tracing_subscriber::fmt::layer()
                 .with_ansi(false) // Disable ANSI color codes
-                .with_target(false) // Hide module paths
+                .with_target(false), // Hide module paths
         )
         .init();
 
@@ -70,5 +72,3 @@ async fn main() {
         tracing::error!("Server failed to start: {}", e);
     }
 }
-
-

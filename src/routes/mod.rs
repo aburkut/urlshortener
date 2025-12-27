@@ -1,6 +1,6 @@
-use rocket::fairing::{Info, Fairing, Kind};
-use rocket::{Request, Response};
+use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::Header;
+use rocket::{Request, Response};
 use rocket_db_pools::Database;
 
 pub mod shortener;
@@ -42,7 +42,10 @@ impl Fairing for Cors {
         };
 
         res.set_header(Header::new("Access-Control-Allow-Origin", origin));
-        res.set_header(Header::new("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS"));
+        res.set_header(Header::new(
+            "Access-Control-Allow-Methods",
+            "GET, POST, PUT, DELETE, OPTIONS",
+        ));
         res.set_header(Header::new("Access-Control-Allow-Headers", "*"));
         // Note: Access-Control-Allow-Credentials cannot be used with Access-Control-Allow-Origin: *
         // If you need credentials, specify a specific origin instead of "*"

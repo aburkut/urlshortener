@@ -20,11 +20,7 @@ impl Default for NanoIDProvider {
 
 impl IDProvider for NanoIDProvider {
     fn provide(&self) -> String {
-        nanoid::format(
-            nanoid::rngs::default,
-            &nanoid::alphabet::SAFE,
-            self.length
-        )
+        nanoid::format(nanoid::rngs::default, &nanoid::alphabet::SAFE, self.length)
     }
 }
 

@@ -1,21 +1,20 @@
-use rocket::{get, post, State};
-use rocket::serde::json::Json;
+use chrono::{Duration, Utc};
 use rocket::response::status::Created;
+use rocket::serde::json::Json;
+use rocket::{get, post, State};
 use rocket_db_pools::Connection;
-use chrono::{Utc, Duration};
-use tracing::{info, warn, error};
+use tracing::{error, info, warn};
 
-use crate::models::{CreateShortUrlRequest, CreateShortUrlResponse, NewUrl};
-use crate::routes::DbConn;
-use crate::repositories::UrlRepository;
-use crate::id_provider::{NanoIDProvider, IDProvider};
-use crate::errors::AppError;
 use crate::config::AppConfig;
+use crate::errors::AppError;
+use crate::id_provider::{IDProvider, NanoIDProvider};
+use crate::models::{CreateShortUrlRequest, CreateShortUrlResponse, NewUrl};
+use crate::repositories::UrlRepository;
+use crate::routes::DbConn;
 
 /// Validates if a URL is properly formatted
 fn validate_url(url_str: &str) -> Result<(), AppError> {
-    url::Url::parse(url_str)
-        .map_err(|e| AppError::InvalidUrl(e.to_string()))?;
+    url::Url::parse(url_str).map_err(|e| AppError::InvalidUrl(e.to_string()))?;
     Ok(())
 }
 
@@ -33,7 +32,10 @@ pub async fn create_short_url(
     if config.enable_deduplication {
         match UrlRepository::find_by_url(&mut db, &request.url).await {
             Ok(existing_url) => {
-                info!("Found existing short URL for this URL: {}", existing_url.short);
+                info!(
+                    "Found existing short URL for this URL: {}",
+                    existing_url.short
+                );
                 return Ok(Created::new("/").body(Json(CreateShortUrlResponse {
                     short_url: existing_url.short,
                     expires_at: existing_url.expires_at,
@@ -46,11 +48,10 @@ pub async fn create_short_url(
     }
 
     // Calculate expiration date
-    let expires_at = request.ttl_days
+    let expires_at = request
+        .ttl_days
         .or(config.default_ttl_days)
-        .map(|days| {
-            (Utc::now() + Duration::days(days)).naive_utc()
-        });
+        .map(|days| (Utc::now() + Duration::days(days)).naive_utc());
 
     // Generate short URL using ID provider with collision detection
     let id_provider = NanoIDProvider::new(config.short_id_length);
@@ -61,14 +62,20 @@ pub async fn create_short_url(
         attempts += 1;
 
         if attempts > config.max_collision_attempts {
-            error!("Failed to generate unique short URL after {} attempts", attempts);
+            error!(
+                "Failed to generate unique short URL after {} attempts",
+                attempts
+            );
             return Err(AppError::TooManyCollisions(attempts));
         }
 
         match UrlRepository::find_by_short(&mut db, &short_url).await {
             Ok(_) => {
                 // Collision detected, generate new one
-                warn!("Collision detected for short URL: {} (attempt {})", short_url, attempts);
+                warn!(
+                    "Collision detected for short URL: {} (attempt {})",
+                    short_url, attempts
+                );
                 short_url = id_provider.provide();
             }
             Err(diesel::result::Error::NotFound) => {
@@ -91,7 +98,10 @@ pub async fn create_short_url(
 
     match UrlRepository::create(&mut db, new_url).await {
         Ok(url) => {
-            info!("Successfully created short URL: {} -> {}", short_url, request.url);
+            info!(
+                "Successfully created short URL: {} -> {}",
+                short_url, request.url
+            );
             Ok(Created::new("/").body(Json(CreateShortUrlResponse {
                 short_url,
                 expires_at: url.expires_at,
@@ -125,7 +135,12 @@ pub async fn get_full_url(
                 // Don't fail the request, just log the error
             }
 
-            info!("Redirecting {} -> {} (clicks: {})", short_url, url.url, url.clicks + 1);
+            info!(
+                "Redirecting {} -> {} (clicks: {})",
+                short_url,
+                url.url,
+                url.clicks + 1
+            );
             Ok(rocket::response::Redirect::to(url.url))
         }
         Err(diesel::result::Error::NotFound) => {
@@ -133,7 +148,10 @@ pub async fn get_full_url(
             Err(AppError::NotFound)
         }
         Err(e) => {
-            error!("Database error while retrieving short URL {}: {}", short_url, e);
+            error!(
+                "Database error while retrieving short URL {}: {}",
+                short_url, e
+            );
             Err(AppError::DatabaseError(e.to_string()))
         }
     }

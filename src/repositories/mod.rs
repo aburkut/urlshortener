@@ -1,5 +1,5 @@
-use diesel::QueryResult;
 use diesel::prelude::*;
+use diesel::QueryResult;
 use diesel_async::{AsyncPgConnection, RunQueryDsl};
 
 use crate::models::*;
@@ -19,7 +19,11 @@ impl UrlRepository {
     pub async fn find_by_url(c: &mut AsyncPgConnection, url: &str) -> QueryResult<Url> {
         urls::table
             .filter(urls::url.eq(url))
-            .filter(urls::expires_at.is_null().or(urls::expires_at.gt(diesel::dsl::now)))
+            .filter(
+                urls::expires_at
+                    .is_null()
+                    .or(urls::expires_at.gt(diesel::dsl::now)),
+            )
             .order(urls::created_at.desc())
             .first(c)
             .await
