@@ -17,6 +17,8 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 url = "2.5"
 thiserror = "1.0"
+utoipa = { version = "4.2", features = ["chrono"] }
+utoipa-swagger-ui = { version = "6.0", features = ["rocket"] }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }

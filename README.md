@@ -96,6 +96,34 @@ cargo build --release
 docker-compose down
 ```
 
+## API Documentation
+
+### Swagger UI
+
+Interactive API documentation is available at:
+- **Swagger UI**: http://localhost:8080/swagger-ui/
+- **OpenAPI JSON**: http://localhost:8080/api-docs/openapi.json
+
+The Swagger UI provides:
+- Interactive API testing
+- Request/response examples
+- Schema definitions
+- Authentication (if configured)
+
+### cURL Examples
+
+**Create Short URL:**
+```bash
+curl -X POST http://localhost:8080/create_short_url \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://example.com"}'
+```
+
+**Access Short URL:**
+```bash
+curl -L http://localhost:8080/abc1234
+```
+
 ## API Endpoints
 
 ### Create Short URL

@@ -18,6 +18,21 @@ fn validate_url(url_str: &str) -> Result<(), AppError> {
     Ok(())
 }
 
+/// Create a short URL
+///
+/// Creates a shortened URL from a long URL. Optionally accepts a TTL (time to live) in days.
+/// If the same URL is submitted multiple times with deduplication enabled, the same short URL will be returned.
+#[utoipa::path(
+    post,
+    path = "/create_short_url",
+    request_body = CreateShortUrlRequest,
+    responses(
+        (status = 201, description = "Short URL created successfully", body = CreateShortUrlResponse),
+        (status = 400, description = "Invalid URL format", body = ErrorResponse),
+        (status = 500, description = "Internal server error", body = ErrorResponse)
+    ),
+    tag = "URL Shortener"
+)]
 #[post("/create_short_url", format = "json", data = "<request>")]
 pub async fn create_short_url(
     mut db: Connection<DbConn>,
@@ -114,6 +129,24 @@ pub async fn create_short_url(
     }
 }
 
+/// Redirect to the original URL
+///
+/// Takes a short URL identifier and redirects to the original long URL.
+/// Increments the click counter and checks if the URL has expired.
+#[utoipa::path(
+    get,
+    path = "/{short_url}",
+    params(
+        ("short_url" = String, Path, description = "Short URL identifier", example = "abc1234")
+    ),
+    responses(
+        (status = 303, description = "Redirect to original URL"),
+        (status = 404, description = "Short URL not found", body = ErrorResponse),
+        (status = 410, description = "Short URL has expired", body = ErrorResponse),
+        (status = 500, description = "Internal server error", body = ErrorResponse)
+    ),
+    tag = "URL Shortener"
+)]
 #[get("/<short_url>")]
 pub async fn get_full_url(
     mut db: Connection<DbConn>,

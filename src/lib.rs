@@ -7,6 +7,7 @@ pub mod models;
 pub mod config;
 pub mod errors;
 pub mod id_provider;
+pub mod openapi;
 pub mod repositories;
 
 use rocket_db_pools::Database;

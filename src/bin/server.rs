@@ -5,7 +5,10 @@ use rocket_db_pools::Database;
 use std::env;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use urlshortener::config::AppConfig;
+use urlshortener::openapi::ApiDoc;
 use urlshortener::routes::DbConn;
+use utoipa::OpenApi;
+use utoipa_swagger_ui::SwaggerUi;
 
 pub struct Server {
     port: u16,
@@ -30,6 +33,11 @@ impl Server {
                     urlshortener::routes::shortener::create_short_url,
                     urlshortener::routes::shortener::get_full_url,
                 ],
+            )
+            .mount(
+                "/",
+                SwaggerUi::new("/swagger-ui/<_..>")
+                    .url("/api-docs/openapi.json", ApiDoc::openapi()),
             )
             .manage(self.config.clone())
             .attach(urlshortener::routes::Cors::new(
