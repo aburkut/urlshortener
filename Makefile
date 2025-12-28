@@ -57,3 +57,16 @@ clippy: ## Run clippy linter
 	cargo clippy -- -D warnings
 
 check: fmt clippy test ## Run all checks (format, lint, test)
+
+test-docker: ## Run tests in Docker (fully isolated)
+	@echo "Building and running tests in Docker..."
+	@docker-compose --profile test up --build --abort-on-container-exit test
+	@docker-compose --profile test down
+
+test-docker-clean: ## Clean and run tests in Docker
+	@echo "Cleaning Docker test environment..."
+	@docker-compose --profile test down -v
+	@docker rmi -f urlshortener-test 2>/dev/null || true
+	@echo "Building and running tests in Docker..."
+	@docker-compose --profile test up --build --abort-on-container-exit test
+	@docker-compose --profile test down

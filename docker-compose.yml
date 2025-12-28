@@ -35,5 +35,30 @@ services:
       timeout: 5s
       retries: 5
 
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: urlshortener_test
+    depends_on:
+      postgres_test:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres_test:5432/urlshortener_test
+      ROCKET_CONFIG: Rocket.Docker.toml
+      RUST_LOG: info
+      RUST_BACKTRACE: 1
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 2 &&
+        echo 'Running migrations...' &&
+        diesel migration run &&
+        echo 'Running tests...' &&
+        cargo test -- --test-threads=1 --nocapture
+      "
+    profiles:
+      - test
+
 volumes:
   postgres_data:

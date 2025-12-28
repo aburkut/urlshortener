@@ -3,11 +3,37 @@
 ## Quick Start
 
 ```bash
-# Easiest way - using Makefile
+# Run tests locally (requires local Rust and database)
 make test
+
+# Run tests in Docker (fully isolated, no local dependencies)
+make test-docker
 ```
 
-## Manual Testing
+## Docker-based Testing (Recommended for CI/CD)
+
+Run tests in a completely isolated Docker environment:
+
+```bash
+# Using Makefile
+make test-docker
+
+# Or using script
+./scripts/test-docker.sh
+
+# Or using docker-compose directly
+docker-compose --profile test up --build --abort-on-container-exit test
+docker-compose --profile test down
+```
+
+**Benefits:**
+- ✅ No local Rust installation required
+- ✅ No local Diesel CLI required
+- ✅ Consistent environment across all machines
+- ✅ Perfect for CI/CD pipelines
+- ✅ Isolated from local development environment
+
+## Manual Testing (Local)
 
 ### 1. Start Test Database
 
@@ -119,48 +145,26 @@ If port 5433 is already used:
 
 ## CI/CD Integration
 
-Example GitHub Actions workflow:
+Our GitHub Actions workflow uses Docker Compose for testing, making it simple and consistent:
 
 ```yaml
-name: Tests
+test:
+  name: Test (Docker)
+  runs-on: ubuntu-latest
 
-on: [push, pull_request]
+  steps:
+    - uses: actions/checkout@v4
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
+    - name: Run tests in Docker
+      run: docker compose --profile test up --build --abort-on-container-exit test
 
-    services:
-      postgres:
-        image: postgres:15-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: urlshortener_test
-        ports:
-          - 5433:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-
-    - name: Install Diesel CLI
-      run: cargo install diesel_cli --no-default-features --features postgres
-
-    - name: Run migrations
-      run: diesel migration run
-      env:
-        DATABASE_URL: postgres://postgres:postgres@localhost:5433/urlshortener_test
-
-    - name: Run tests
-      run: cargo test
+    - name: Cleanup
+      if: always()
+      run: docker compose --profile test down -v
 ```
+
+**Benefits:**
+- ✅ No manual Rust/Diesel CLI installation needed
+- ✅ Same environment as local Docker tests
+- ✅ Faster setup (no dependency installation)
+- ✅ Easier to maintain

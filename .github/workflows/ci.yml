@@ -47,60 +47,18 @@ jobs:
         run: cargo clippy -- -D warnings
 
   test:
-    name: Test
+    name: Test (Docker)
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:15-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: urlshortener_test
-        ports:
-          - 5433:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+      - name: Run tests in Docker
+        run: docker compose --profile test up --build --abort-on-container-exit test
 
-      - name: Cache cargo registry
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Cache cargo index
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-git-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Cache cargo build
-        uses: actions/cache@v4
-        with:
-          path: target
-          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Install Diesel CLI
-        run: cargo install diesel_cli --no-default-features --features postgres
-
-      - name: Run migrations
-        run: diesel migration run
-        env:
-          DATABASE_URL: postgres://postgres:postgres@localhost:5433/urlshortener_test
-
-      - name: Run tests
-        run: cargo test --verbose
-        env:
-          DATABASE_URL: postgres://postgres:postgres@localhost:5433/urlshortener_test
+      - name: Cleanup
+        if: always()
+        run: docker compose --profile test down -v
 
   build:
     name: Build
