@@ -67,10 +67,7 @@ mod tests {
         let provider = NanoIDProvider::default();
         let id1 = provider.provide();
         let id2 = provider.provide();
-        assert_ne!(
-            id1, id2,
-            "NanoID should generate unique IDs on each call"
-        );
+        assert_ne!(id1, id2, "NanoID should generate unique IDs on each call");
     }
 
     #[test]
@@ -79,7 +76,8 @@ mod tests {
         let id = provider.provide();
         // Safe alphabet should only contain URL-safe characters
         assert!(
-            id.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '-'),
+            id.chars()
+                .all(|c| c.is_alphanumeric() || c == '_' || c == '-'),
             "NanoID should only contain URL-safe characters"
         );
     }
@@ -88,7 +86,11 @@ mod tests {
     fn test_fake_id_provider() {
         let provider = FakeIDProvider::new("test123".to_string());
         assert_eq!(provider.provide(), "test123");
-        assert_eq!(provider.provide(), "test123", "FakeIDProvider should return the same ID");
+        assert_eq!(
+            provider.provide(),
+            "test123",
+            "FakeIDProvider should return the same ID"
+        );
     }
 
     #[test]
@@ -97,6 +99,10 @@ mod tests {
         assert_eq!(provider.provide(), "initial");
 
         provider.set_id("updated".to_string());
-        assert_eq!(provider.provide(), "updated", "FakeIDProvider should return updated ID");
+        assert_eq!(
+            provider.provide(),
+            "updated",
+            "FakeIDProvider should return updated ID"
+        );
     }
 }

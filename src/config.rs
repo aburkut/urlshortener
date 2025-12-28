@@ -100,7 +100,10 @@ mod tests {
 
         env::set_var("SHORT_ID_LENGTH", "10");
         env::set_var("MAX_COLLISION_ATTEMPTS", "5");
-        env::set_var("CORS_ALLOWED_ORIGINS", "https://example.com,https://test.com");
+        env::set_var(
+            "CORS_ALLOWED_ORIGINS",
+            "https://example.com,https://test.com",
+        );
         env::set_var("ENABLE_DEDUPLICATION", "false");
         env::set_var("DEFAULT_TTL_DAYS", "30");
 
@@ -146,7 +149,10 @@ mod tests {
     fn test_cors_parsing_with_spaces() {
         let _lock = ENV_LOCK.lock().unwrap();
 
-        env::set_var("CORS_ALLOWED_ORIGINS", "  https://a.com  ,  https://b.com  ");
+        env::set_var(
+            "CORS_ALLOWED_ORIGINS",
+            "  https://a.com  ,  https://b.com  ",
+        );
 
         let config = AppConfig::from_env();
         assert_eq!(
