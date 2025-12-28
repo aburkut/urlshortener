@@ -9,6 +9,7 @@ pub mod errors;
 pub mod id_provider;
 pub mod openapi;
 pub mod repositories;
+pub mod validation;
 
 use rocket_db_pools::Database;
 

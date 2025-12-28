@@ -11,12 +11,7 @@ use crate::id_provider::{IDProvider, NanoIDProvider};
 use crate::models::{CreateShortUrlRequest, CreateShortUrlResponse, NewUrl};
 use crate::repositories::UrlRepository;
 use crate::routes::DbConn;
-
-/// Validates if a URL is properly formatted
-fn validate_url(url_str: &str) -> Result<(), AppError> {
-    url::Url::parse(url_str).map_err(|e| AppError::InvalidUrl(e.to_string()))?;
-    Ok(())
-}
+use crate::validation::validate_url;
 
 /// Create a short URL
 ///
